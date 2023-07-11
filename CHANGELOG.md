@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.0.2
+
+[compare changes](https://github.com/sooluh/bloks-parser/compare/v0.0.1...v0.0.2)
+
+### 🩹 Fixes
+
+- Fix for bloks response when wrong username ([7c02a03](https://github.com/sooluh/bloks-parser/commit/7c02a03))
+
+### ❤️  Contributors
+
+- Abu Masyail
+
 ## v0.0.1
 
 
