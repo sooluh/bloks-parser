@@ -1,10 +1,13 @@
 import { ParseType } from "./types";
 
 const parse = (entries: ParseType): ParseType => {
+  // return entries if it's not of object data type
   if (typeof entries !== "object") {
     return entries;
   }
 
+  // return entries with each of its values parsed
+  // again when they are of array data type
   if (Array.isArray(entries)) {
     return entries.map((item) => parse(item));
   }
@@ -17,8 +20,10 @@ const parse = (entries: ParseType): ParseType => {
 
       if (typeof value === "string") {
         try {
+          // parse json if possible
           parsed[key] = JSON.parse(value);
         } catch {
+          // use value if it can't be parsed
           parsed[key] = value;
         }
       } else if (typeof value === "object") {
@@ -33,11 +38,18 @@ const parse = (entries: ParseType): ParseType => {
 };
 
 const array = (bloks: string) => {
+  // sanitize unicode
+  bloks = bloks.replace(/[^ -~]/g, "'");
+  // replace parentheses with square brackets
   bloks = bloks.replace(/\(/g, "[").replace(/\)/g, "]");
+  // fix structure of quoted array
   bloks = bloks.replace(/"(\s+)?(\[.*])"/g, (match) =>
+    // "[bk.xxx, bk.xxx]" => "[\"bk.xxx\", \"bk.xxx\"]"
     JSON.stringify(match[2]),
   );
+  // quote all strings that start with "bk." or "ig."
   bloks = bloks.replace(/((bk|ig)\.[\d.A-Za-z]+)/g, '"$1"');
+  // fix structure of quoted object
   bloks = bloks.replace(/"({.*})"/g, "$1");
 
   const entries = JSON.parse(bloks);
@@ -60,7 +72,10 @@ export const bloks = (string: string) => {
     typeof twoFactorObject === "object" && !Array.isArray(twoFactorObject);
   const isSuccess = !isFailed && !isTwoFactor;
 
-  const object = isTwoFactor ? twoFactorObject : successObject;
-
-  return { isFailed, isTwoFactor, isSuccess, object };
+  return {
+    isFailed,
+    isTwoFactor,
+    isSuccess,
+    data: isTwoFactor ? twoFactorObject : successObject,
+  };
 };
