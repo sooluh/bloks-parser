@@ -1,0 +1,45 @@
+{
+  "name": "bloks-parser",
+  "version": "0.0.0",
+  "description": "Response parser utility for Meta's Bloks Framework",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sooluh/bloks-parser.git"
+  },
+  "license": "MIT",
+  "sideEffects": false,
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "unbuild",
+    "dev": "vitest",
+    "lint": "eslint . && prettier -c src test",
+    "lint:fix": "eslint . --fix && prettier -w src test",
+    "release": "yarn test && yarn build && changelogen --release --push && npm publish",
+    "test": "yarn lint && yarn vitest run --coverage"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.1",
+    "@vitest/coverage-v8": "^0.33.0",
+    "changelogen": "^0.5.4",
+    "eslint": "^8.44.0",
+    "eslint-config-unjs": "^0.2.1",
+    "prettier": "^3.0.0",
+    "typescript": "^5.1.6",
+    "unbuild": "^1.2.1",
+    "vitest": "^0.33.0"
+  },
+  "packageManager": "yarn@1.22.19"
+}
