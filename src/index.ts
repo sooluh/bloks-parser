@@ -1,6 +1,18 @@
-import { ParseType } from "./types";
+type ParseType =
+  | string
+  | number
+  | (string | number)[]
+  | { [key: string | number]: any };
 
-const parse = (entries: ParseType): ParseType => {
+type BloksType = {
+  isError: boolean;
+  isTwoFactor: boolean;
+  isAuthenticated: boolean;
+  data?: object;
+  message?: string;
+};
+
+const parseObject = (entries: ParseType): ParseType => {
   // return entries if it's not of object data type
   if (typeof entries !== "object") {
     return entries;
@@ -9,7 +21,7 @@ const parse = (entries: ParseType): ParseType => {
   // return entries with each of its values parsed
   // again when they are of array data type
   if (Array.isArray(entries)) {
-    return entries.map((item) => parse(item));
+    return entries.map((item) => parseObject(item));
   }
 
   const parsed: { [key: string]: any } = {};
@@ -27,7 +39,7 @@ const parse = (entries: ParseType): ParseType => {
           parsed[key] = value;
         }
       } else if (typeof value === "object") {
-        parsed[key] = parse(value);
+        parsed[key] = parseObject(value);
       } else {
         parsed[key] = value;
       }
@@ -37,7 +49,7 @@ const parse = (entries: ParseType): ParseType => {
   return parsed;
 };
 
-const array = (bloks: string) => {
+const parseBloks = (bloks: string) => {
   // sanitize unicode
   bloks = bloks.replace(/[^ -~]/g, "'");
   // replace parentheses with square brackets
@@ -53,29 +65,38 @@ const array = (bloks: string) => {
   bloks = bloks.replace(/"({.*})"/g, "$1");
 
   const entries = JSON.parse(bloks);
-  return parse(entries);
+  return parseObject(entries);
 };
 
-export const bloks = (string: string) => {
-  const entries = array(string.trim());
+export const bloks = (bloksResponse: string): BloksType => {
+  try {
+    const entries = parseBloks(bloksResponse.trim());
 
-  // username & password error string: [3][2][1][3]
-  // 2fa: [3][4][2] <== username & password error: result array with bk.action boolean false
-  // success: [5][3][1][1][1][3]
+    // username & password error string: [3][2][1][3]
+    // 2fa: [3][4][2] <== username & password error: result array with bk.action boolean false
+    // success: [5][3][1][1][1][3]
 
-  const failedObject = Object.values(entries)?.[3]?.[2]?.[1]?.[3];
-  const twoFactorObject = Object.values(entries)?.[3]?.[4]?.[2];
-  const successObject = Object.values(entries)?.[5]?.[3]?.[1]?.[1]?.[1]?.[3];
+    const error = Object.values(entries)?.[3]?.[2]?.[1]?.[3];
+    const twoFac = Object.values(entries)?.[3]?.[4]?.[2];
+    const data = Object.values(entries)?.[5]?.[3]?.[1]?.[1]?.[1]?.[3];
 
-  const isFailed = typeof failedObject === "string";
-  const isTwoFactor =
-    typeof twoFactorObject === "object" && !Array.isArray(twoFactorObject);
-  const isSuccess = !isFailed && !isTwoFactor;
+    const isFailed = typeof error === "string";
+    const isTwoFactor = typeof twoFac === "object" && !Array.isArray(twoFac);
+    const isAuthenticated = !isFailed && !isTwoFactor;
 
-  return {
-    isFailed,
-    isTwoFactor,
-    isSuccess,
-    data: isTwoFactor ? twoFactorObject : successObject,
-  };
+    return {
+      isError: false,
+      isTwoFactor,
+      isAuthenticated,
+      data: isTwoFactor ? twoFac : data,
+      message: error,
+    };
+  } catch (error) {
+    return {
+      isError: true,
+      isTwoFactor: false,
+      isAuthenticated: false,
+      message: String(error),
+    };
+  }
 };

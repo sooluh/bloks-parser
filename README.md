@@ -35,7 +35,7 @@ Usage:
 
 ```js
 const data = bloks(bloksResponse);
-// { isFailed: boolean, isTwoFactor: boolean, isSuccess: boolean, data: object }
+// { isError: boolean, isTwoFactor: boolean, isAuthenticated: boolean, data?: any, message?: string }
 ```
 
 ## 🙌🏻 Contribution

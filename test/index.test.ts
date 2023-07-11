@@ -23,11 +23,11 @@ const success = Buffer.from(
 
 describe("bloks", () => {
   it("is wrong username", () => {
-    expect(bloks(wrongUsername).isFailed).to.equal(true);
+    expect(bloks(wrongUsername).isAuthenticated).to.equal(false);
   });
 
   it("is wrong password", () => {
-    expect(bloks(wrongPassword).isFailed).to.equal(true);
+    expect(bloks(wrongPassword).isAuthenticated).to.equal(false);
   });
 
   it("is two factor", () => {
@@ -35,6 +35,6 @@ describe("bloks", () => {
   });
 
   it("is success", () => {
-    expect(bloks(success).isSuccess).to.equal(true);
+    expect(bloks(success).isAuthenticated).to.equal(true);
   });
 });
