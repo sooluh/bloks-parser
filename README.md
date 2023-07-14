@@ -36,6 +36,37 @@ Usage:
 ```js
 const data = bloks(bloksResponse);
 // { isError: boolean, isTwoFactor: boolean, isAuthenticated: boolean, data?: any, message?: string }
+
+if (data.isTwoFactor) {
+  const {
+    pk,
+    username,
+    two_factor_identifier,
+    trusted_notification_polling_nonce,
+    device_id,
+  } = data.data!.two_factor_info!;
+}
+
+if (!data.isAuthenticated) {
+  throw new Error(data.message!);
+}
+
+if (data.isAuthenticated) {
+  const token = data.data!.headers?.["IG-Set-Authorization"].replace(
+    "Bearer IGT:2:",
+    "",
+  );
+
+  const {
+    pk, // <== number
+    pk_id, // <== string
+    username,
+    full_name,
+    is_private,
+    is_verified,
+    profile_pic_url,
+  } = data.data!.login_response!.logged_in_user;
+}
 ```
 
 ## 🙌🏻 Contribution
