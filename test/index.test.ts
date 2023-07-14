@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, expectTypeOf } from "vitest";
 import { bloks } from "../src";
 
 const wrongUsername = Buffer.from(
@@ -31,11 +31,58 @@ describe("bloks", () => {
   });
 
   it("is two factor", () => {
-    expect(bloks(twoFactor).isTwoFactor).to.equal(true);
+    const data = bloks(twoFactor);
+
+    expect(data.isTwoFactor).to.equal(true);
+    expect(data.data?.two_factor_required).to.equal(true);
+    expect(data.data?.error_type).to.equal("two_factor_required");
+
+    expectTypeOf<number>(data.data?.two_factor_info?.pk!).toBeNumber();
+    expectTypeOf<string>(data.data?.two_factor_info?.username!).toBeString();
+    expectTypeOf<string>(data.data?.two_factor_info?.device_id!).toBeString();
+
+    expectTypeOf<string>(
+      data.data?.two_factor_info?.two_factor_identifier!,
+    ).toBeString();
+
+    expectTypeOf<string>(
+      data.data?.two_factor_info?.trusted_notification_polling_nonce!,
+    ).toBeString();
   });
 
   it("is authenticated", () => {
-    expect(bloks(authenticated).isAuthenticated).to.equal(true);
+    const data = bloks(authenticated);
+
+    expect(data.isAuthenticated).to.equal(true);
+    expect(data.data?.headers?.["IG-Set-Authorization"]).match(/Bearer IGT:2:/);
+
+    expectTypeOf<number>(
+      data.data?.login_response?.logged_in_user.pk!,
+    ).toBeNumber();
+
+    expectTypeOf<string>(
+      data.data?.login_response?.logged_in_user.pk_id!,
+    ).toBeString();
+
+    expectTypeOf<string>(
+      data.data?.login_response?.logged_in_user.username!,
+    ).toBeString();
+
+    expectTypeOf<string>(
+      data.data?.login_response?.logged_in_user.full_name!,
+    ).toBeString();
+
+    expectTypeOf<boolean>(
+      data.data?.login_response?.logged_in_user.is_private!,
+    ).toBeBoolean();
+
+    expectTypeOf<boolean>(
+      data.data?.login_response?.logged_in_user.is_verified!,
+    ).toBeBoolean();
+
+    expectTypeOf<string>(
+      data.data?.login_response?.logged_in_user.profile_pic_url!,
+    ).toBeString();
   });
 
   it("is error", () => {

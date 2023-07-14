@@ -1,16 +1,9 @@
-type ParseType =
-  | string
-  | number
-  | (string | number)[]
-  | { [key: string | number]: any };
-
-type BloksType = {
-  isError: boolean;
-  isTwoFactor: boolean;
-  isAuthenticated: boolean;
-  data?: object;
-  message?: string;
-};
+import {
+  AuthenticatedDataType,
+  BloksType,
+  ParseType,
+  TwoFactorDataType,
+} from "./types";
 
 const parseObject = (entries: ParseType): ParseType => {
   // return entries if it's not of object data type
@@ -77,8 +70,9 @@ export const bloks = (bloksResponse: string): BloksType => {
     // success: [5][3][1][1][1][3]
 
     const error = Object.values(entries)?.[3]?.[2]?.[1]?.[3];
-    const twoFac = Object.values(entries)?.[3]?.[4]?.[2];
-    const data = Object.values(entries)?.[5]?.[3]?.[1]?.[1]?.[1]?.[3];
+    const twoFac: TwoFactorDataType = Object.values(entries)?.[3]?.[4]?.[2];
+    const data: AuthenticatedDataType =
+      Object.values(entries)?.[5]?.[3]?.[1]?.[1]?.[1]?.[3];
 
     const isFailed = typeof error === "string";
     const isTwoFactor = typeof twoFac === "object" && !Array.isArray(twoFac);
@@ -89,7 +83,7 @@ export const bloks = (bloksResponse: string): BloksType => {
       isTwoFactor,
       isAuthenticated,
       data: isTwoFactor ? twoFac : data,
-      message: error,
+      message: error === "_" ? undefined : error,
     };
   } catch (error) {
     return {
